@@ -1,0 +1,437 @@
+@startuml
+title MarketGo - Class Diagram by Bounded Context
+
+skinparam classAttributeIconSize 0
+
+package "iam" {
+  class User {
+    +UUID id
+    +String name
+    +String email
+    +UserStatus status
+  }
+
+  class Role {
+    +UUID id
+    +String name
+    +String description
+  }
+
+  class Permission {
+    +UUID id
+    +String resource
+    +String action
+  }
+
+  class Session {
+    +UUID id
+    +String token
+    +DateTime expiresAt
+    +Boolean active
+  }
+
+  class AuthGuard {
+    +canActivate(user, route)
+  }
+
+  User "1" --> "1..*" Role
+  Role "1" --> "1..*" Permission
+  User "1" --> "0..*" Session
+  AuthGuard ..> User
+  AuthGuard ..> Permission
+}
+
+package "profiles" {
+  class Profile {
+    +UUID id
+    +UUID userId
+    +ProfileType type
+    +String phone
+    +String address
+  }
+
+  class MinimarketProfile {
+    +UUID minimarketId
+    +String businessName
+    +String ruc
+    +String district
+  }
+
+  class ProviderProfile {
+    +UUID supplierId
+    +String businessName
+    +String specialty
+    +String coverageArea
+  }
+
+  Profile <|-- MinimarketProfile
+  Profile <|-- ProviderProfile
+}
+
+package "dashboard" {
+  class Dashboard {
+    +UUID userId
+    +RoleType role
+    +loadIndicators()
+  }
+
+  class DashboardIndicator {
+    +String title
+    +IndicatorType type
+    +Decimal value
+  }
+
+  class InventoryIndicator
+  class SupplyRequestIndicator
+  class ShippingOrderIndicator
+  class AlertIndicator
+  class ActivityIndicator
+
+  Dashboard "1" *-- "0..*" DashboardIndicator
+
+  DashboardIndicator <|-- InventoryIndicator
+  DashboardIndicator <|-- SupplyRequestIndicator
+  DashboardIndicator <|-- ShippingOrderIndicator
+  DashboardIndicator <|-- AlertIndicator
+  DashboardIndicator <|-- ActivityIndicator
+}
+
+package "analytics" {
+  class AnalyticsSummary {
+    +Integer totalInventory
+    +Integer totalSupplyRequests
+    +Integer totalShippingOrders
+    +Integer totalWaste
+    +Integer totalOffers
+    +Decimal conservationScore
+  }
+
+  class OperationalIndicator {
+    +String label
+    +Decimal currentValue
+    +Decimal previousValue
+    +calculateVariation()
+  }
+
+  class Report {
+    +UUID id
+    +ReportType type
+    +DateTime generatedAt
+    +String format
+  }
+
+  class ReportGenerator {
+    +generateInventoryReport()
+    +generateSupplyReport()
+    +generateWasteReport()
+    +generateOfferReport()
+    +generateConservationReport()
+    +generateSupplierReport()
+  }
+
+  AnalyticsSummary "1" *-- "0..*" OperationalIndicator
+  ReportGenerator --> Report
+}
+
+package "inventory" {
+  class InventoryItem {
+    +UUID id
+    +UUID minimarketId
+    +UUID productId
+    +Integer stock
+    +Integer minimumStock
+    +InventoryStatus status
+    +updateStock(quantity)
+  }
+
+  class Lot {
+    +UUID id
+    +UUID inventoryItemId
+    +String code
+    +Date entryDate
+    +Date expirationDate
+    +Integer quantity
+    +LotStatus status
+    +isExpired()
+    +isNearExpiration()
+  }
+
+  class StockUpdate {
+    +UUID id
+    +Integer previousStock
+    +Integer newStock
+    +DateTime updatedAt
+  }
+
+  class WasteRecord {
+    +UUID id
+    +UUID inventoryItemId
+    +Integer quantity
+    +String reason
+    +DateTime registeredAt
+  }
+
+  class SaleOffer {
+    +UUID id
+    +UUID inventoryItemId
+    +UUID lotId
+    +Integer quantity
+    +Decimal offerPrice
+    +Date startDate
+    +Date endDate
+    +SaleOfferStatus status
+    +activate()
+    +expire()
+    +cancel()
+  }
+
+  InventoryItem "1" *-- "0..*" Lot
+  InventoryItem "1" --> "0..*" StockUpdate
+  InventoryItem "1" --> "0..*" WasteRecord
+  InventoryItem "1" --> "0..*" SaleOffer
+
+  Lot "1" --> "0..*" SaleOffer
+}
+
+package "products" {
+  class Product {
+    +UUID id
+    +String name
+    +String description
+    +Decimal price
+    +Boolean available
+  }
+
+  class ProductCategory {
+    +UUID id
+    +String name
+  }
+
+  class ProductAvailability {
+    +UUID id
+    +UUID productId
+    +UUID supplierId
+    +Integer availableQuantity
+    +Boolean available
+    +isAvailable()
+  }
+
+  Product "1" --> "1" ProductCategory
+  Product "1" --> "0..*" ProductAvailability
+}
+
+package "requisition" {
+  class SupplyRequest {
+    +UUID id
+    +UUID minimarketId
+    +UUID supplierId
+    +UUID requesterId
+    +SupplyRequestStatus status
+    +DateTime createdAt
+    +DateTime reviewedAt
+    +String rejectionReason
+    +accept()
+    +reject(reason)
+  }
+
+  class SupplyRequestItem {
+    +UUID id
+    +UUID productId
+    +Integer quantity
+  }
+
+  class SupplyRequestResponse {
+    +UUID id
+    +UUID supplierId
+    +Boolean accepted
+    +String comment
+    +DateTime respondedAt
+  }
+
+  SupplyRequest "1" *-- "1..*" SupplyRequestItem
+  SupplyRequest "1" o-- "0..1" SupplyRequestResponse
+}
+
+package "procurements" {
+  class ShippingOrder {
+    +UUID id
+    +UUID supplyRequestId
+    +UUID supplierId
+    +UUID minimarketId
+    +ShippingOrderStatus status
+    +DateTime createdAt
+    +DateTime shippingDate
+    +DateTime receivedAt
+    +String observations
+    +String rejectionReason
+    +acceptReception()
+    +rejectReception(reason)
+  }
+
+  class ShippingOrderItem {
+    +UUID id
+    +UUID productId
+    +Integer quantity
+    +Decimal unitPrice
+  }
+
+  class ShippingOrderTracking {
+    +UUID id
+    +ShippingOrderStatus status
+    +DateTime changedAt
+    +String comment
+  }
+
+  class ShipmentReception {
+    +UUID id
+    +UUID administratorId
+    +Boolean accepted
+    +String comment
+    +DateTime reviewedAt
+  }
+
+  ShippingOrder "1" *-- "1..*" ShippingOrderItem
+  ShippingOrder "1" --> "0..*" ShippingOrderTracking
+  ShippingOrder "1" o-- "0..1" ShipmentReception
+}
+
+package "suppliers" {
+  class Supplier {
+    +UUID id
+    +String businessName
+    +String ruc
+    +String email
+    +String phone
+    +String address
+  }
+
+  class SupplierDirectory {
+    +search(query)
+    +filterByCategory(category)
+  }
+
+  class SupplierProfile {
+    +UUID supplierId
+    +String description
+    +String specialty
+    +String coverageArea
+  }
+
+  SupplierDirectory "1" --> "0..*" Supplier
+  Supplier "1" --> "1" SupplierProfile
+}
+
+package "conservation" {
+  class ConservationRecord {
+    +UUID id
+    +UUID productId
+    +UUID lotId
+    +Decimal temperature
+    +Decimal humidity
+    +DateTime recordedAt
+  }
+
+  class TemperatureMetric {
+    +Decimal min
+    +Decimal max
+    +Decimal average
+  }
+
+  class HumidityMetric {
+    +Decimal min
+    +Decimal max
+    +Decimal average
+  }
+
+  class ConservationRule {
+    +Decimal minTemperature
+    +Decimal maxTemperature
+    +Decimal minHumidity
+    +Decimal maxHumidity
+    +validate(record)
+  }
+
+  ConservationRecord --> TemperatureMetric
+  ConservationRecord --> HumidityMetric
+  ConservationRule ..> ConservationRecord
+}
+
+package "communication" {
+  class Message {
+    +UUID id
+    +UUID senderId
+    +UUID receiverId
+    +String subject
+    +String body
+    +Boolean read
+    +Boolean starred
+    +DateTime sentAt
+    +markAsRead()
+    +markAsUnread()
+    +star()
+    +unstar()
+  }
+
+  class Conversation {
+    +UUID id
+    +DateTime updatedAt
+  }
+
+  class Notification {
+    +UUID id
+    +UUID userId
+    +String title
+    +String message
+    +NotificationType type
+    +Boolean read
+    +DateTime createdAt
+    +markAsRead()
+    +markAsUnread()
+  }
+
+  class AlertCenter {
+    +UUID userId
+    +getUnread()
+    +getAll()
+  }
+
+  Conversation "1" *-- "0..*" Message
+  AlertCenter "1" --> "0..*" Notification
+}
+
+' =========================================================
+' Relationships between Bounded Contexts
+' =========================================================
+
+iam.User ..> profiles.Profile : owns
+
+profiles.ProviderProfile ..> suppliers.SupplierProfile : updates
+
+products.Product ..> inventory.InventoryItem : stocked as
+products.Product ..> requisition.SupplyRequestItem : requested as
+products.Product ..> procurements.ShippingOrderItem : shipped as
+
+inventory.Lot ..> products.Product : belongs to
+inventory.Lot ..> conservation.ConservationRecord : monitored by
+
+inventory.InventoryItem ..> dashboard.InventoryIndicator : feeds
+inventory.SaleOffer ..> analytics.Report : reported in
+inventory.WasteRecord ..> analytics.Report : reported in
+
+requisition.SupplyRequest ..> dashboard.SupplyRequestIndicator : feeds
+requisition.SupplyRequest ..> procurements.ShippingOrder : generates after acceptance
+requisition.SupplyRequest ..> suppliers.Supplier : addressed to
+
+procurements.ShippingOrder ..> dashboard.ShippingOrderIndicator : feeds
+procurements.ShippingOrderItem ..> products.Product : contains
+procurements.ShippingOrder ..> inventory.InventoryItem : updates after acceptance
+procurements.ShippingOrder ..> suppliers.Supplier : created by
+
+suppliers.Supplier ..> products.ProductAvailability : offers
+
+conservation.ConservationRecord ..> analytics.AnalyticsSummary : aggregates
+
+communication.Notification ..> dashboard.AlertIndicator : feeds
+communication.Message ..> iam.User : sender/receiver
+
+@enduml
