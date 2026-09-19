@@ -1,8 +1,6 @@
 @startuml
 title MarketGo - Class Diagram by Bounded Context
 
-skinparam classAttributeIconSize 0
-
 package "iam" {
   class User {
     +UUID id
