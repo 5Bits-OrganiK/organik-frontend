@@ -7,11 +7,12 @@
 
 export const environment = {
   production: true,
+  apiBaseUrl: 'http://localhost:3000/',
+  minimarketId: 'minimarket-demo',
   newsProviderApiBaseUrl: 'https://newsapi.org/v2/',
   newProviderNewsEndpoint: 'top-headlines',
   newProviderSourceEndpointPath: 'top-headlines/sources',
   newProviderApiKey: 'YOUR_API_KEY',
-  logoProviderApiBaseUrl: 'https://img.logo.dev',
+  logoProviderApiBaseUrl: 'https://img.logo.dev/',
   logoProviderPublishableKey: 'YOUR_LOGO_PROVIDER_PUBLISHABLE_KEY',
 };
-
