@@ -1,7 +1,7 @@
-# User Stories — MarketGo
+# User Stories — OrganiK
 
-> **Project:** MarketGo — Web Platform for Organic Product Management, Conservation, and Supply
-> **Startup:** Market-Labs
+> **Project:** OrganiK — Web Platform for Organic Product Management, Conservation, and Supply
+> **Startup:** 5bits
 
 ---
 
@@ -737,7 +737,7 @@
 
 **I want to** register users in the system,
 
-**So that** I can provide controlled access to MarketGo.
+**So that** I can provide controlled access to OrganiK.
 
 <br>**Acceptance Criteria:**
 
@@ -765,7 +765,7 @@
 
 **I want to** sign in,
 
-**So that** I can access the MarketGo dashboard according to my permissions.
+**So that** I can access the OrganiK dashboard according to my permissions.
 
 <br>**Acceptance Criteria:**
 
@@ -817,7 +817,7 @@
 
 ### US-029: Control Access by Operation
 
-**As a** MarketGo user,
+**As a** OrganiK user,
 
 **I want** the available actions for supply requests, shipping orders, and inventory to depend on my role,
 
@@ -829,7 +829,7 @@
 
 **Given** that the user has the minimarket administrator role,
 
-**When** the user accesses MarketGo,
+**When** the user accesses OrganiK,
 
 **Then** the user can manage supply requests and inventory and accept or reject shipping orders, but cannot directly modify shipping orders created by suppliers.
 
@@ -837,7 +837,7 @@
 
 **Given** that the user has the supplier role,
 
-**When** the user accesses MarketGo,
+**When** the user accesses OrganiK,
 
 **Then** the user can view and accept or reject received supply requests and manage shipping orders, but cannot directly modify the minimarket inventory.
 
@@ -847,7 +847,7 @@
 
 ### US-030: General Dashboard
 
-**As a** MarketGo user,
+**As a** OrganiK user,
 
 **I want to** view a common dashboard with information relevant to my role,
 
