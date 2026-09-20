@@ -413,7 +413,7 @@ export class OrganikLayout {
     this.iamStore.fetchUsers();
     effect(() => {
       const hasVisibleRoute = this.visibleMenuItems().some((item) => this.router.url === item.to);
-      const alwaysAllowedPaths = ['/dashboard', '/access-denied'];
+      const alwaysAllowedPaths = ['/', '/home', '/dashboard', '/access-denied'];
       if (!hasVisibleRoute && !alwaysAllowedPaths.includes(this.router.url)) {
         this.router.navigateByUrl('/access-denied');
       }
